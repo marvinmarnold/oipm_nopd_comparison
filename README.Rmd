@@ -1,0 +1,18 @@
+---
+title: NOPD v OIPM annual complaints & UOF comparison
+output: html_document
+---
+
+## Data sources
+- Email sent from NOPD 8/31/18 containing: IAPro misconduct, 2015 comparison, 2017 stats (Sgt Jordan)
+
+## Complaints
+
+## Use of Force
+
+## Installation
+
+```
+devtools::install_github("rmarkdown", "rstudio")
+```
+
