@@ -4,9 +4,30 @@ output: html_document
 ---
 
 ## Data sources
+- Analysis source code here: 
 - Email sent from NOPD 8/31/18 containing: IAPro misconduct, 2015 comparison, 2017 stats (Sgt Jordan)
 
 ## Complaints
+```{r, include=FALSE}
+require(dplyr)
+getwd()
+oipm.allegations.csv <- "/media/sf_oipm/code/repo/data_public/clean/allegations_all_clean.csv"
+oipm.allegations.all <- read.csv(oipm.allegations.csv, stringsAsFactors = FALSE)
+oipm.allegations.2015 <- oipm.allegations.all %>% filter(grepl("2015", PIB.Control.Number))
+
+nopd.allegations.2015 <- read.csv("/media/sf_oipm/code/oipm_nopd_comparison/data/nopd/2015comparison_IAProReport.csv")
+
+oipm.allegations.per.complaint.2015 <- oipm.allegations.2015 %>% group_by(PIB.Control.Number) %>% summarise(num.allegs.oipm = n())
+nopd.allegations.per.complaint.2015 <- nopd.allegations.2015 %>% group_by(PIB.Control.Number) %>% summarise(num.allegs.nopd = n())
+
+alleg.counts <- merge(oipm.allegations.per.complaint.2015, nopd.allegations.per.complaint.2015, by = 'PIB.Control.Number', all=TRUE)
+alleg.diffs <- alleg.counts %>% filter(num.allegs.oipm != num.allegs.nopd)
+
+```
+
+```{r}
+alleg.diffs
+```
 
 ## Use of Force
 
