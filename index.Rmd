@@ -4,15 +4,97 @@ output: html_document
 ---
 
 ## Data sources
-- Analysis source code here: 
-- Email sent from NOPD 8/31/18 containing: IAPro misconduct, 2015 comparison, 2017 stats (Sgt Jordan)
-
-## Complaints
 ```{r, include=FALSE}
 require(dplyr)
-getwd()
+
+# Complaints
 oipm.allegations.csv <- "/media/sf_oipm/code/repo/data_public/clean/allegations_all_clean.csv"
 oipm.allegations.all <- read.csv(oipm.allegations.csv, stringsAsFactors = FALSE)
+
+nopd.allegations.csv <- "/media/sf_oipm/code/oipm_nopd_comparison/data.nola.gov/NOPD_Misconduct_Complaints.csv"
+nopd.allegations.all <- read.csv(nopd.allegations.csv, stringsAsFactors = FALSE)
+
+# UOF
+oipm.uof.csv <- "/media/sf_oipm/code/repo/data_public/clean/uof_clean.csv"
+oipm.uof.all <- read.csv(oipm.uof.csv, stringsAsFactors = FALSE)
+
+nopd.uof.csv <- "/media/sf_oipm/code/oipm_nopd_comparison/data.nola.gov/NOPD_Use_of_Force_Incidents.csv"
+nopd.uof.all <- read.csv(nopd.uof.csv, stringsAsFactors = FALSE)
+```
+- Analysis source code [here](https://github.com/marvinmarnold/oipm_nopd_comparison).
+- Email sent from NOPD 8/31/18 containing: IAPro misconduct, 2015 comparison, 2017 stats (Sgt Jordan)
+
+## 2017 discrepancies
+
+### Difference between 2017 OIPM and NOPD complaint numbers
+```{r, include=FALSE}
+oipm.allegations.2017 <- oipm.allegations.all %>% filter(grepl("2017", PIB.Control.Number))
+nopd.allegations.2017 <- nopd.allegations.all %>% filter(grepl("2017", Complaint.Tracking.Number))
+
+oipm.allegations.per.complaint.2017 <- oipm.allegations.2017 %>% group_by(PIB.Control.Number) %>% summarise(num.allegs.oipm = n())
+nopd.allegations.per.complaint.2017 <- nopd.allegations.2017 %>% group_by(Complaint.Tracking.Number) %>% summarise(num.allegs.nopd = n())
+
+alleg.counts.2017 <- merge(oipm.allegations.per.complaint.2017, nopd.allegations.per.complaint.2017, by.x = 'PIB.Control.Number', by.y = 'Complaint.Tracking.Number', all=TRUE)
+alleg.diffs.2017 <- alleg.counts.2017 %>% filter(is.na(num.allegs.oipm) | is.na(num.allegs.nopd) | (num.allegs.oipm != num.allegs.nopd))
+```
+
+```{r}
+alleg.diffs.2017
+```
+
+### Difference between 2017 OIPM and NOPD force numbers
+```{r, include=FALSE}
+oipm.uof.2017 <- oipm.uof.all %>% filter(grepl("FTN2017", FIT.Number))
+nopd.uof.2017 <- nopd.uof.all %>% filter(grepl("FTN2017", PIB.File.Number))
+
+oipm.uof.per.ftn.2017 <- oipm.uof.2017 %>% group_by(FIT.Number) %>% summarise(num.uof.oipm = n())
+nopd.uof.per.ftn.2017 <- nopd.uof.2017 %>% group_by(PIB.File.Number) %>% summarise(num.uof.nopd = n())
+
+uof.counts.2017 <- merge(oipm.uof.per.ftn.2017, nopd.uof.per.ftn.2017, by.x = 'FIT.Number', by.y = 'PIB.File.Number', all=TRUE)
+uof.diffs.2017 <- uof.counts.2017 %>% filter(is.na(num.uof.oipm) | is.na(num.uof.nopd) | (num.uof.oipm != num.uof.nopd))
+```
+
+```{r}
+uof.diffs.2017
+```
+
+## 2016 discrepancies
+### Difference between 2016 OIPM and NOPD complaint numbers
+```{r, include=FALSE}
+oipm.allegations.2016 <- oipm.allegations.all %>% filter(grepl("2016", PIB.Control.Number))
+nopd.allegations.2016 <- nopd.allegations.all %>% filter(grepl("2016", Complaint.Tracking.Number))
+
+oipm.allegations.per.complaint.2016 <- oipm.allegations.2016 %>% group_by(PIB.Control.Number) %>% summarise(num.allegs.oipm = n())
+nopd.allegations.per.complaint.2016 <- nopd.allegations.2016 %>% group_by(Complaint.Tracking.Number) %>% summarise(num.allegs.nopd = n())
+
+alleg.counts.2016 <- merge(oipm.allegations.per.complaint.2016, nopd.allegations.per.complaint.2016, by.x = 'PIB.Control.Number', by.y = 'Complaint.Tracking.Number', all=TRUE)
+alleg.diffs.2016 <- alleg.counts.2016 %>% filter(is.na(num.allegs.oipm) | is.na(num.allegs.nopd) | (num.allegs.oipm != num.allegs.nopd))
+```
+
+```{r}
+alleg.diffs.2016
+```
+
+### Difference between 2016 OIPM and NOPD force numbers
+```{r, include=FALSE}
+oipm.uof.2016 <- oipm.uof.all %>% filter(grepl("FTN2016", FIT.Number))
+nopd.uof.2016 <- nopd.uof.all %>% filter(grepl("FTN2016", PIB.File.Number))
+
+oipm.uof.per.ftn.2016 <- oipm.uof.2016 %>% group_by(FIT.Number) %>% summarise(num.uof.oipm = n())
+nopd.uof.per.ftn.2016 <- nopd.uof.2016 %>% group_by(PIB.File.Number) %>% summarise(num.uof.nopd = n())
+
+uof.counts.2016 <- merge(oipm.uof.per.ftn.2016, nopd.uof.per.ftn.2016, by.x = 'FIT.Number', by.y = 'PIB.File.Number', all=TRUE)
+uof.diffs.2016 <- uof.counts.2016 %>% filter(is.na(num.uof.oipm) | is.na(num.uof.nopd) | (num.uof.oipm != num.uof.nopd))
+```
+
+```{r}
+uof.diffs.2016
+```
+
+
+## 2015 discrepancies
+### Difference between 2015 OIPM and NOPD complaint numbers
+```{r, include=FALSE}
 oipm.allegations.2015 <- oipm.allegations.all %>% filter(grepl("2015", PIB.Control.Number))
 
 nopd.allegations.2015 <- read.csv("/media/sf_oipm/code/oipm_nopd_comparison/data/nopd/2015comparison_IAProReport.csv")
@@ -20,19 +102,33 @@ nopd.allegations.2015 <- read.csv("/media/sf_oipm/code/oipm_nopd_comparison/data
 oipm.allegations.per.complaint.2015 <- oipm.allegations.2015 %>% group_by(PIB.Control.Number) %>% summarise(num.allegs.oipm = n())
 nopd.allegations.per.complaint.2015 <- nopd.allegations.2015 %>% group_by(PIB.Control.Number) %>% summarise(num.allegs.nopd = n())
 
-alleg.counts <- merge(oipm.allegations.per.complaint.2015, nopd.allegations.per.complaint.2015, by = 'PIB.Control.Number', all=TRUE)
-alleg.diffs <- alleg.counts %>% filter(num.allegs.oipm != num.allegs.nopd)
-
+alleg.counts.2015 <- merge(oipm.allegations.per.complaint.2015, nopd.allegations.per.complaint.2015, by = 'PIB.Control.Number', all=TRUE)
+alleg.diffs.2015 <- alleg.counts.2015 %>% filter(is.na(num.allegs.oipm) | is.na(num.allegs.nopd) | (num.allegs.oipm != num.allegs.nopd))
 ```
 
 ```{r}
-alleg.diffs
+alleg.diffs.2015
 ```
 
-## Use of Force
+### Difference between 2015 OIPM and NOPD force numbers
+```{r, include=FALSE}
+oipm.uof.2015 <- oipm.uof.all %>% filter(grepl("FTN2015", FIT.Number))
+
+nopd.uof.2015 <- read.csv("/media/sf_oipm/code/oipm_nopd_comparison/data/nopd/Copy of 2015 UOF data (SQL pull).csv")
+
+oipm.uof.per.ftn.2015 <- oipm.uof.2015 %>% group_by(FIT.Number) %>% summarise(num.uof.oipm = n())
+nopd.uof.per.ftn.2015 <- nopd.uof.2015 %>% group_by(filenum) %>% summarise(num.uof.nopd = n())
+
+uof.counts.2015 <- merge(oipm.uof.per.ftn.2015, nopd.uof.per.ftn.2015, by.x = 'FIT.Number', by.y = 'filenum', all=TRUE)
+uof.diffs.2015 <- uof.counts.2015 %>% filter(is.na(num.uof.oipm) | is.na(num.uof.nopd) | (num.uof.oipm != num.uof.nopd))
+```
+
+```{r}
+uof.diffs.2015
+```
+
 
 ## Installation
-
 ```
 devtools::install_github("rmarkdown", "rstudio")
 ```
